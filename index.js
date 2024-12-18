@@ -5,7 +5,7 @@ require("dotenv").config();
 
 // Environment variables and constants
 const API_KEY =
-    process.env.API_KEY || "7636444612:AAFo8jU4fuHpOWtIFkmJ7kpkdttwXAfNU6E";
+    process.env.API_KEY || "7851643460:AAFz11J57KVLIIBvPyGfYfOtZo6ZEF6PUWk";
 const bot = new TelegramBot(API_KEY, { polling: true });
 
 const REGISTER_API = "https://p-api.sbc369.club/api/cash/registration/";
