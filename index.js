@@ -24,6 +24,96 @@ function generateNineDigitNumber() {
 function handleContactCommand(chatId) {
     bot.sendPhoto(chatId, IMAGE_URL, { caption: CAPTION });
 }
+
+
+// Handle /register and /start commands
+bot.onText(/\/(register|start)/, async (msg) => {
+    const chatId = msg.chat.id;
+    const firstName = msg.from.first_name || "";
+    const lastName = msg.from.last_name || "";
+    const UserName = msg.from.username || "";
+    const FullName = `${firstName}${lastName}`.trim();
+    const Password = msg.from.id;
+    const Phone = generateNineDigitNumber();
+    let data_l = {
+        username: FullName,
+        password: Password,
+        cert: CERT,
+    };
+    let data_r = {
+        account: FullName,
+        name: UserName,
+        password: Password,
+        contact: Phone,
+        affiliate: "",
+        cert: CERT,
+    };
+    const headers = {
+        "Content-Type": "application/json",
+        Authorization: Authorization,
+    };
+    axios.post(REGISTER_API, data_r, { headers })
+    .then((response) => {
+        if (response.status === 201) {
+            axios.post(LOGIN_API, data_l, { headers })
+                .then((responseLogin) => {
+                    if (responseLogin.status === 200) {
+                        bot.sendMessage(chatId, `អ្នកបង្កើត អាខោន ជោគជ័យ!`);
+                        const { domain, sessionid, userid } = responseLogin.data;
+                        bot.sendMessage(
+                            chatId,
+                            `Your account: \`${FullName}\`\nYour password: \`${Password}\``,
+                            { parse_mode: "Markdown" }
+                        );
+                        const rehref = `${domain}/?sid=${sessionid}&uid=${userid}&cert=${CERT}&language=EN`;
+                        bot.sendMessage(chatId, `Login:\n${rehref}`);
+                        handleContactCommand(chatId);
+                    }
+                })
+                .catch((error) => {
+                    handleError(error, chatId, FullName, Password, data_l, headers);
+                });
+        }
+    })
+    .catch((error) => {
+        handleError(error, chatId, FullName, Password, data_l, headers);
+    });
+});
+function handleError(error, chatId, FullName, Password, data_l, headers) {
+    if (error.response && error.response.data) {
+        const errorMessage = error.response.data.message;
+        if (errorMessage === "The account is already exists!") {
+            handleLogin(chatId, FullName, Password, data_l, headers);
+        } else if (errorMessage === "The phone number is already exists!") {
+            bot.sendMessage(chatId, `លេខទូរស័ព្ទមានហើយ!`);
+        } else if (errorMessage === "Minimum username 6 digits and maxiumm 10 digits!") {
+            bot.sendMessage(
+                chatId,
+                `ឈ្មោះអ្នកប្រើអប្បបរមា 6 ខ្ទង់ និងអតិបរមា 10 ខ្ទង់!`
+            );
+        } else if (errorMessage === "Username contains space!") {
+            bot.sendMessage(
+                chatId,
+                `ឈ្មោះអ្នកប្រើប្រាស់មានកន្លែងទំនេរ!`
+            );
+        } else if (errorMessage === "Username or password is not valid!") {
+            bot.sendMessage(
+                chatId,
+                `ឈ្មោះរបស់អ្នកមានរួចហេីយសូមធ្វេីការដូរឈ្មោះតេឡេក្រាមលោកអ្នក!`
+            );
+        } else {
+            bot.sendMessage(
+                chatId,
+                `Unexpected error: ${errorMessage}`
+            );
+        }
+    } else {
+        bot.sendMessage(
+            chatId,
+            `Bot is temporarily down. Please try again later.`
+        );
+    }
+}
 function handleLogin(chatId, FullName, Password, data_l, headers) {
     axios.post(LOGIN_API, data_l, { headers })
         .then((responseLogin) => {
@@ -53,91 +143,6 @@ function handleLogin(chatId, FullName, Password, data_l, headers) {
             }
         });
 }
-
-// Handle /register and /start commands
-bot.onText(/\/(register|start)/, async (msg) => {
-    const chatId = msg.chat.id;
-    const firstName = msg.from.first_name || "";
-    const lastName = msg.from.last_name || "";
-    const UserName = msg.from.username || "";
-    const FullName = `${firstName}${lastName}`.trim();
-    const Password = msg.from.id;
-    const Phone = generateNineDigitNumber();
-    let data_l = {
-        username: FullName,
-        password: Password,
-        cert: CERT,
-    };
-    let data_r = {
-        account: FullName,
-        name: UserName,
-        password: Password,
-        contact: Phone,
-        affiliate: "",
-        cert: CERT,
-    };
-    const headers = {
-        "Content-Type": "application/json",
-        Authorization: Authorization,
-    };
-    try {
-        const response = await axios.post(REGISTER_API, data_r, { headers });
-        if (response.status === 201) {
-            const responseLogin = await axios.post(LOGIN_API, data_l, {
-                headers,
-            });
-            if (responseLogin.status === 200) {
-                bot.sendMessage(chatId, `អ្នកបង្កើត អាខោន ជោគជ័យ!`);
-                const {domain, sessionid, userid } = responseLogin.data;
-                bot.sendMessage(
-                    chatId,
-                    `Your account: \`${FullName}\`\nYour password: \`${Password}\``,
-                    { parse_mode: "Markdown" },
-                );
-                const rehref = `${domain}/?sid=${sessionid}&uid=${userid}&cert=${CERT}&language=EN`;
-                bot.sendMessage(chatId, `Login:\n${rehref}`);
-                handleContactCommand(chatId);
-            }
-        }
-    } catch (error) {
-        // Handle specific error messages
-        if (error.response && error.response.data) {
-            const errorMessage = error.response.data.message;
-            if (errorMessage === "The account is already exists!") {
-                handleLogin(chatId, FullName, Password, data_l, headers);
-            } else if (errorMessage === "The phone number is already exists!") {
-                bot.sendMessage(chatId, `លេខទូរស័ព្ទមានហើយ!`);
-            } else if (errorMessage === "Minimum username 6 digits and maxiumm 10 digits!") {
-                bot.sendMessage(
-                    chatId,
-                    `ឈ្មោះអ្នកប្រើអប្បបរមា 6 ខ្ទង់ និងអតិបរមា 10 ខ្ទង់!`
-                );
-            } else if (errorMessage === "Username contains space!") {
-                bot.sendMessage(
-                    chatId,
-                    `ឈ្មោះអ្នកប្រើប្រាស់មានកន្លែងទំនេរ!`
-                );
-            } else if (errorMessage === "Username or password is not valid!") {
-                bot.sendMessage(
-                    chatId,
-                    `ឈ្មោះរបស់អ្នកមានរួចហេីយសូមធ្វេីការដូរឈ្មោះតេឡេក្រាមលោកអ្នក!`
-                );
-            } else {
-                bot.sendMessage(
-                    chatId,
-                    `Unexpected error: ${errorMessage}`
-                );
-            }
-
-        } else {
-            bot.sendMessage(
-                chatId,
-                `Bot is temporarily down. Please try again later.`,
-            );
-        }
-    }
-});
-
 // Handle /contact command
 bot.onText(/\/contact/, (msg) => {
     const chatId = msg.chat.id;
