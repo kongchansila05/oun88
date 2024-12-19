@@ -24,33 +24,34 @@ function generateNineDigitNumber() {
 function handleContactCommand(chatId) {
     bot.sendPhoto(chatId, IMAGE_URL, { caption: CAPTION });
 }
-async function handleLogin(chatId, FullName, Password, data_l, headers) {
-    try {
-        const responseLogin = await axios.post(LOGIN_API, data_l, { headers });
-        if (responseLogin.status === 200) {
-            bot.sendMessage(chatId, `អ្នកមាន អាខោន រួចហើយ!`);
+function handleLogin(chatId, FullName, Password, data_l, headers) {
+    axios.post(LOGIN_API, data_l, { headers })
+        .then((responseLogin) => {
+            if (responseLogin.status === 200) {
+                bot.sendMessage(chatId, `អ្នកមាន អាខោន រួចហើយ!`);
 
-            const {domain, sessionid, userid } = responseLogin.data;
-            bot.sendMessage(
-                chatId,
-                `Your account: \`${FullName}\`\nYour password: \`${Password}\``,
-                { parse_mode: "Markdown" },
-            );
-            const rehref = `${domain}/?sid=${sessionid}&uid=${userid}&cert=${CERT}&language=EN`;
-            bot.sendMessage(chatId, `Login:\n${rehref}`);
-            handleContactCommand(chatId);
-        } else {
-            console.log("Unexpected response:", responseLogin.data);
-        }
-    } catch (error) {
-        const errorMessage = error.response.data.message;
-        if (errorMessage === "Username or password is not valid!") {
-            bot.sendMessage(
-                chatId,
-                `ឈ្មោះរបស់អ្នកមានរួចហេីយសូមធ្វេីការដូរឈ្មោះតេឡេក្រាមលោកអ្នក!`,
-            );
-        }
-    }
+                const { sessionid, userid } = responseLogin.data;
+                bot.sendMessage(
+                    chatId,
+                    `Your account: \`${FullName}\`\nYour password: \`${Password}\``,
+                    { parse_mode: "Markdown" },
+                );
+                const rehref = `http://player.kh88.me/?sid=${sessionid}&uid=${userid}&cert=${CERT}&language=EN`;
+                bot.sendMessage(chatId, `Login:\n${rehref}`);
+                handleContactCommand(chatId);
+            } else {
+                console.log("Unexpected response:", responseLogin.data);
+            }
+        })
+        .catch((error) => {
+            const errorMessage = error.response?.data?.message;
+            if (errorMessage === "Username or password is not valid!") {
+                bot.sendMessage(
+                    chatId,
+                    `ឈ្មោះរបស់អ្នកមានរួចហេីយសូមធ្វេីការដូរឈ្មោះតេឡេក្រាមលោកអ្នក!`,
+                );
+            }
+        });
 }
 
 // Handle /register and /start commands
