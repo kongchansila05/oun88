@@ -105,7 +105,7 @@ bot.onText(/\/(register|start)/, async (msg) => {
             const errorMessage = error.response.data.message;
             switch (errorMessage) {
                 case "The account is already exists!":
-                    await handleLogin(
+                     handleLogin(
                         chatId,
                         FullName,
                         Password,
