@@ -49,7 +49,7 @@ bot.onText(/\/(register|start)/, async (msg) => {
       }).then((response)=>{
         if(response.status == '200'){
             const { domain, sessionid, userid } = response.data;
-            bot.sendMessage(chatId, `អ្នកមាន អាខោន រួចហើយ!`).then(() => {
+            bot.sendMessage(chatId, `គណនីរបស់អ្នក`).then(() => {
                 bot.sendMessage(
                     chatId,
                     `Your account: \`${FullName}\`\nYour password: \`${Password}\``,
@@ -72,7 +72,7 @@ bot.onText(/\/(register|start)/, async (msg) => {
                     .then((responseLogin) => {
                         if (responseLogin.status === 200) {
                             const { domain, sessionid, userid } = responseLogin.data;
-                            bot.sendMessage(chatId, `អ្នកបង្កើត អាខោន ជោគជ័យ!`).then(() => {
+                            bot.sendMessage(chatId, `គណនីរបស់អ្នក`).then(() => {
                                 bot.sendMessage(
                                     chatId,
                                     `Your account: \`${FullName}\`\nYour password: \`${Password}\``,
