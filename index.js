@@ -30,13 +30,13 @@ function handleLogin(chatId, FullName, Password, data_l, headers) {
             if (responseLogin.status === 200) {
                 bot.sendMessage(chatId, `អ្នកមាន អាខោន រួចហើយ!`);
 
-                const { sessionid, userid } = responseLogin.data;
+                const {domain, sessionid, userid } = responseLogin.data;
                 bot.sendMessage(
                     chatId,
                     `Your account: \`${FullName}\`\nYour password: \`${Password}\``,
                     { parse_mode: "Markdown" },
                 );
-                const rehref = `http://player.kh88.me/?sid=${sessionid}&uid=${userid}&cert=${CERT}&language=EN`;
+               const rehref = `${domain}/?sid=${sessionid}&uid=${userid}&cert=${CERT}&language=EN`;
                 bot.sendMessage(chatId, `Login:\n${rehref}`);
                 handleContactCommand(chatId);
             } else {
