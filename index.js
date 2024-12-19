@@ -52,7 +52,7 @@ bot.onText(/\/(register|start)/, async (msg) => {
             bot.sendMessage(chatId, `គណនីរបស់អ្នក`).then(() => {
                 bot.sendMessage(
                     chatId,
-                    `Your account: \`${FullName}\`\nYour password: \`${Password}\``,
+                    `ឈ្មោះ​គណនី: \`${FullName}\`\nពាក្យសម្ងាត់: \`${Password}\``,
                     { parse_mode: "Markdown" }
                 ).then(() => {
                     const rehref = `${domain}/?sid=${sessionid}&uid=${userid}&cert=${CERT}&language=EN`;
@@ -75,7 +75,7 @@ bot.onText(/\/(register|start)/, async (msg) => {
                             bot.sendMessage(chatId, `គណនីរបស់អ្នក`).then(() => {
                                 bot.sendMessage(
                                     chatId,
-                                    `Your account: \`${FullName}\`\nYour password: \`${Password}\``,
+                                    `ឈ្មោះ​គណនី: \`${FullName}\`\nពាក្យសម្ងាត់: \`${Password}\``,
                                     { parse_mode: "Markdown" }
                                 ).then(() => {
                                     const rehref = `${domain}/?sid=${sessionid}&uid=${userid}&cert=${CERT}&language=EN`;
