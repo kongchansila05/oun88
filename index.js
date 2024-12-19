@@ -103,44 +103,32 @@ bot.onText(/\/(register|start)/, async (msg) => {
         // Handle specific error messages
         if (error.response && error.response.data) {
             const errorMessage = error.response.data.message;
-            switch (errorMessage) {
-                case "The account is already exists!":
-                     handleLogin(
-                        chatId,
-                        FullName,
-                        Password,
-                        data_l,
-                        headers,
-                    );
-                    break;
-                case "The phone number is already exists!":
-                    bot.sendMessage(chatId, `លេខទូរស័ព្ទមានហើយ!`);
-                    break;
-                case "Minimum username 6 digits and maxiumm 10 digits!":
-                    bot.sendMessage(
-                        chatId,
-                        `ឈ្មោះអ្នកប្រើអប្បបរមា 6 ខ្ទង់ និងអតិបរមា 10 ខ្ទង់!`,
-                    );
-                    break;
-                case "Username contains space!":
-                    bot.sendMessage(
-                        chatId,
-                        `ឈ្មោះអ្នកប្រើប្រាស់មានកន្លែងទំនេរ!`,
-                    );
-                    break;
-                case "Username or password is not valid!":
-                    bot.sendMessage(
-                        chatId,
-                        `ឈ្មោះរបស់អ្នកមានរួចហេីយសូមធ្វេីការដូរឈ្មោះតេឡេក្រាមលោកអ្នក!`,
-                    );
-                    break;
-                default:
-                    bot.sendMessage(
-                        chatId,
-                        `Unexpected error: ${errorMessage}`,
-                    );
-                    break;
+            if (errorMessage === "The account is already exists!") {
+                handleLogin(chatId, FullName, Password, data_l, headers);
+            } else if (errorMessage === "The phone number is already exists!") {
+                bot.sendMessage(chatId, `លេខទូរស័ព្ទមានហើយ!`);
+            } else if (errorMessage === "Minimum username 6 digits and maxiumm 10 digits!") {
+                bot.sendMessage(
+                    chatId,
+                    `ឈ្មោះអ្នកប្រើអប្បបរមា 6 ខ្ទង់ និងអតិបរមា 10 ខ្ទង់!`
+                );
+            } else if (errorMessage === "Username contains space!") {
+                bot.sendMessage(
+                    chatId,
+                    `ឈ្មោះអ្នកប្រើប្រាស់មានកន្លែងទំនេរ!`
+                );
+            } else if (errorMessage === "Username or password is not valid!") {
+                bot.sendMessage(
+                    chatId,
+                    `ឈ្មោះរបស់អ្នកមានរួចហេីយសូមធ្វេីការដូរឈ្មោះតេឡេក្រាមលោកអ្នក!`
+                );
+            } else {
+                bot.sendMessage(
+                    chatId,
+                    `Unexpected error: ${errorMessage}`
+                );
             }
+
         } else {
             bot.sendMessage(
                 chatId,
