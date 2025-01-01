@@ -34,17 +34,17 @@ function handleContactCommand(chatId) {
         }
     });
 }
-function fetchApiStatus(userId) {
-    const apiUrl = `https://oun88bot.2m-sy.com/api/register/${userId}`;
-    axios.get(apiUrl).then((response)=>{      
-        if (response.data && typeof response.data.status === 'boolean') {
-            console.log('API Status:', response.data.status); // Log the status
-            return response.data.status; // Return the status
-        } else {
-            throw new Error('Unexpected API response format');
-        }
-    });
-}
+// function fetchApiStatus(userId) {
+//     const apiUrl = `https://oun88bot.2m-sy.com/api/register/${userId}`;
+//     axios.get(apiUrl).then((response)=>{      
+//         if (response.data && typeof response.data.status === 'boolean') {
+//             console.log('API Status:', response.data.status); // Log the status
+//             return response.data.status; // Return the status
+//         } else {
+//             throw new Error('Unexpected API response format');
+//         }
+//     });
+// }
 bot.onText(/\/(myaccount|start)/, async (msg) => {
     const chatId = msg.chat.id;
     const firstName = msg.from.first_name || "";
@@ -88,13 +88,14 @@ bot.onText(/\/(myaccount|start)/, async (msg) => {
     }).catch(error => {
         const errorMessage = error.response.data.message;
         if (errorMessage === "Username or password is not valid!") {
+            const apiUrl = `https://oun88bot.2m-sy.com/api/register/${Password}`;
+            axios.get(apiUrl)
             axios.post(REGISTER_API, data_r, { headers })
             .then((response) => {
                 if (response.status === 201) {
                     axios.post(LOGIN_API, data_l, { headers })
                     .then((responseLogin) => {
                         if (responseLogin.status === 200) {
-                            fetchApiStatus(Password);
                             const { domain, sessionid, userid } = responseLogin.data;
                             const rehref = `${domain}/?sid=${sessionid}&uid=${userid}&cert=${CERT}&language=EN`;
                             bot.sendMessage(
