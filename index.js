@@ -2,7 +2,7 @@ const TelegramBot = require("node-telegram-bot-api");
 const axios = require("axios");
 require("dotenv").config();
 const API_KEY =
-    process.env.API_KEY || "7806217113:AAFlIuLrnq3g74zNNEOeSBC3NnJLufl4R-I";
+    process.env.API_KEY || "7851643460:AAFz11J57KVLIIBvPyGfYfOtZo6ZEF6PUWk";
 const bot = new TelegramBot(API_KEY, { polling: true });
 
 const REGISTER_API = "https://p-api.sbc369.club/api/cash/registration/";
