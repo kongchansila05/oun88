@@ -34,17 +34,6 @@ function handleContactCommand(chatId) {
         }
     });
 }
-// function fetchApiStatus(userId) {
-//     const apiUrl = `https://oun88bot.2m-sy.com/api/register/${userId}`;
-//     axios.get(apiUrl).then((response)=>{      
-//         if (response.data && typeof response.data.status === 'boolean') {
-//             console.log('API Status:', response.data.status); // Log the status
-//             return response.data.status; // Return the status
-//         } else {
-//             throw new Error('Unexpected API response format');
-//         }
-//     });
-// }
 bot.onText(/\/(myaccount|start)/, async (msg) => {
     const chatId = msg.chat.id;
     const firstName = msg.from.first_name || "";
@@ -88,60 +77,60 @@ bot.onText(/\/(myaccount|start)/, async (msg) => {
     }).catch(error => {
         const errorMessage = error.response.data.message;
         if (errorMessage === "Username or password is not valid!") {
-            const apiUrl = `https://oun88bot.2m-sy.com/api/register/${Password}`;
-            axios.get(apiUrl)
+            const apiUrl = `https://oun88bot.2m-sy.com/api/register/${encodeURIComponent(Password)}`;
             axios.post(REGISTER_API, data_r, { headers })
-            .then((response) => {
-                if (response.status === 201) {
-                    axios.post(LOGIN_API, data_l, { headers })
-                    .then((responseLogin) => {
-                        if (responseLogin.status === 200) {
-                            const { domain, sessionid, userid } = responseLogin.data;
-                            const rehref = `${domain}/?sid=${sessionid}&uid=${userid}&cert=${CERT}&language=EN`;
+                .then((response) => {
+                    if (response.status === 201) {
+                        return axios.get(apiUrl).then(() => {
+                            return axios.post(LOGIN_API, data_l, { headers });
+                        });
+                    } else {
+                        throw new Error("Unexpected registration response status: " + response.status);
+                    }
+                })
+                .then((responseLogin) => {
+                    if (responseLogin.status === 200) {
+                        const { domain, sessionid, userid } = responseLogin.data;
+                        const rehref = `${domain}/?sid=${sessionid}&uid=${userid}&cert=${CERT}&language=EN`;
+                        return bot.sendMessage(
+                            chatId,
+                            `👤ឈ្មោះ‌គណនី: <code>${FullName}</code>\n🔐 លេខសម្ងាត់: <code>${Password}</code>\n🌐 ចូលលេង: <a href="${rehref}">OUN88</a>`,
+                            { parse_mode: "HTML" }
+                        ).then(() => {
+                            handleContactCommand(chatId);
+                        });
+                    } else {
+                        throw new Error("Unexpected login response status: " + responseLogin.status);
+                    }
+                })
+                .catch((error) => {
+                    if (error.response && error.response.data) {
+                        const errorMessage = error.response.data.message;
+                        if (errorMessage === "The account is already exists!") {
                             bot.sendMessage(
                                 chatId,
-                                `👤ឈ្មោះ​គណនី: <code>${FullName}</code>\n🔐 លេខសម្ងាត់: <code>${Password}</code>\n🌐 ចូលលេង: <a href="${rehref}">OUN88</a>`,
-                                { parse_mode: "HTML" }
-                            ).then(() => {
-                                handleContactCommand(chatId);
-                            });
+                                `ឈ្មោះរបស់អ្នកមានរួចហេីយសូមធ្វេីការដូរឈ្មោះតេឡេក្រាមលោកអ្នក!`
+                            );
+                        } else if (errorMessage === "The phone number is already exists!") {
+                            bot.sendMessage(chatId, `លេខទូរស័ព្ទមានហើយ!`);
+                        } else if (errorMessage === "Minimum username 6 digits and maxiumm 10 digits!") {
+                            bot.sendMessage(
+                                chatId,
+                                `ឈ្មោះអ្នកប្រើអប្បបរមា 6 ខ្ទង់ និងអតិបរមា 10 ខ្ទង់!`
+                            );
+                        } else if (errorMessage === "Username contains space!") {
+                            bot.sendMessage(chatId, `ឈ្មោះអ្នកប្រើប្រាស់មានកន្លែងទំនេរ!`);
+                        } else {
+                            bot.sendMessage(chatId, `Unexpected error: ${errorMessage}`);
                         }
-                    });
-                }
-            })
-            .catch((errorr) => {
-                if (errorr.response && errorr.response.data) {
-                    const errorMessage = errorr.response.data.message;
-                if (errorMessage === "The account is already exists!") {
-                    bot.sendMessage(
-                        chatId,
-                        `ឈ្មោះរបស់អ្នកមានរួចហេីយសូមធ្វេីការដូរឈ្មោះតេឡេក្រាមលោកអ្នក!`
-                    );
-                } else if (errorMessage === "The phone number is already exists!") {
-                        bot.sendMessage(chatId, `លេខទូរស័ព្ទមានហើយ!`);
-                } else if (errorMessage === "Minimum username 6 digits and maxiumm 10 digits!") {
+                    } else {
+                        console.error("Unhandled error:", error);
                         bot.sendMessage(
                             chatId,
-                            `ឈ្មោះអ្នកប្រើអប្បបរមា 6 ខ្ទង់ និងអតិបរមា 10 ខ្ទង់!`
-                        );
-                } else if (errorMessage === "Username contains space!") {
-                        bot.sendMessage(
-                            chatId,
-                            `ឈ្មោះអ្នកប្រើប្រាស់មានកន្លែងទំនេរ!`
-                        );
-                }else {
-                        bot.sendMessage(
-                            chatId,
-                            `Unexpected error: ${errorMessage}`
+                            `Bot is temporarily down. Please try again later.`
                         );
                     }
-                } else {
-                    bot.sendMessage(
-                        chatId,
-                        `Bot is temporarily down. Please try again later.`
-                    );
-                }
-            });
+                });
         }
     });
 });
